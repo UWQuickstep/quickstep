@@ -442,23 +442,36 @@ bool InjectJoinFilters::findExactMinMaxValuesForAttributeHelper(
 
 P::PhysicalPtr InjectJoinFilters::wrapSelection(
     const P::PhysicalPtr &input) const {
-  DCHECK(input->getPhysicalType() == P::PhysicalType::kTopLevelPlan);
-  const P::TopLevelPlanPtr top_level_plan =
-      std::static_pointer_cast<const P::TopLevelPlan>(input);
-
-  if (top_level_plan->plan()->getPhysicalType() != P::PhysicalType::kFilterJoin) {
-    return input;
+  std::vector<P::PhysicalPtr> new_children;
+  for (const P::PhysicalPtr &child : input->children()) {
+    new_children.emplace_back(wrapSelection(child));
   }
 
-  const P::SelectionPtr selection =
-      P::Selection::Create(
-          top_level_plan->plan(),
-          E::ToNamedExpressions(top_level_plan->plan()->getOutputAttributes()),
-          nullptr /* filter_predicate */);
+  switch (input->getPhysicalType()) {
+    case P::PhysicalType::kTopLevelPlan:  // Fall through
+    case P::PhysicalType::kUnionAll:
+    case P::PhysicalType::kInsertSelection:
+      break;
+    default:
+      return input;
+  }
 
-  return P::TopLevelPlan::Create(selection,
-                                 top_level_plan->shared_subplans(),
-                                 top_level_plan->uncorrelated_subquery_map());
+  for (std::size_t i = 0; i < new_children.size(); ++i) {
+    const P::PhysicalPtr &child = new_children[i];
+    if (child->getPhysicalType() != P::PhysicalType::kFilterJoin) {
+      continue;
+    }
+    new_children[i] =
+        P::Selection::Create(child,
+                             E::ToNamedExpressions(child->getOutputAttributes()),
+                             nullptr /* filter_predicate */);
+  }
+
+  if (input->children() != new_children) {
+    return input->copyWithNewChildren(new_children);
+  } else {
+    return input;
+  }
 }
 
 

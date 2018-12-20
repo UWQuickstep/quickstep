@@ -62,7 +62,7 @@ class InjectJoinFilters : public Rule<physical::Physical> {
   ~InjectJoinFilters() override {}
 
   std::string getName() const override {
-    return "TransformFilterJoins";
+    return "InjectJoinFilters";
   }
 
   physical::PhysicalPtr apply(const physical::PhysicalPtr &input) override;
