@@ -179,7 +179,7 @@ std::size_t StarSchemaSimpleCostModel::estimateCardinalityForHashJoin(
   std::size_t right_cardinality = estimateCardinality(physical_plan->right());
   double left_selectivity = estimateSelectivity(physical_plan->left());
   double right_selectivity = estimateSelectivity(physical_plan->right());
-  return std::min(static_cast<std::size_t>(left_cardinality * right_selectivity + 0.5),
+  return std::max(static_cast<std::size_t>(left_cardinality * right_selectivity + 0.5),
                   static_cast<std::size_t>(right_cardinality * left_selectivity + 0.5));
 }
 

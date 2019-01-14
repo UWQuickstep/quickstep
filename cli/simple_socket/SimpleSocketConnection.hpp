@@ -25,6 +25,8 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -40,7 +42,11 @@ class SimpleSocketConnection {
   explicit SimpleSocketConnection(const int socket_fd)
       : socket_fd_(socket_fd),
         request_data_(nullptr) {
-    receiveRequest();
+    try {
+      receiveRequest();
+    } catch (const std::exception &e) {
+      error_message_ = std::make_unique<std::string>(e.what());
+    }
   }
 
   ~SimpleSocketConnection() {
@@ -56,6 +62,15 @@ class SimpleSocketConnection {
     return request_;
   }
 
+  bool hasError() const  {
+    return error_message_ != nullptr;
+  }
+
+  const std::string& getErrorMessage() const {
+    DCHECK(hasError());
+    return *error_message_;
+  }
+
   void sendResponse(const std::string &stdout_str,
                     const std::string &stderr_str) const {
     SimpleSocketContent response;
@@ -65,8 +80,15 @@ class SimpleSocketConnection {
   }
 
  private:
+  static constexpr std::size_t kMaxRequestDataLength = 0x10000000LL;
+
   void receiveRequest() {
     request_data_length_ = receiveUInt64();
+    if (request_data_length_ >= kMaxRequestDataLength) {
+      throw std::runtime_error(
+          "Overflow request data length = " + std::to_string(request_data_length_));
+    }
+
     request_data_ = std::malloc(request_data_length_);
     receiveData(request_data_, request_data_length_);
 
@@ -99,15 +121,18 @@ class SimpleSocketConnection {
 
   inline void receiveData(void *dst, std::size_t bytes) const {
     while (bytes != 0) {
-      const std::size_t bytes_read = read(socket_fd_, dst, bytes);
-      CHECK(bytes_read != 0);
+      const ssize_t bytes_read = read(socket_fd_, dst, bytes);
+      if (bytes_read <= 0) {
+        throw std::runtime_error("Error receiving data from socket connection"
+                                 " at SimpleSocketConnection::receiveData()");
+      }
       bytes -= bytes_read;
       dst = static_cast<char*>(dst) + bytes_read;
     }
   }
 
   inline std::uint64_t receiveUInt64() const {
-    std::uint64_t code;
+    std::uint64_t code = 0;
     receiveData(&code, sizeof(std::uint64_t));
     return Ntohll(code);
   }
@@ -150,8 +175,10 @@ class SimpleSocketConnection {
   inline static std::uint64_t Ntohll(const std::uint64_t code) {
     const std::uint32_t lo32 = static_cast<std::uint32_t>(code);
     const std::uint32_t hi32 = static_cast<std::uint32_t>(code >> 32);
-    return (static_cast<std::uint64_t>(ntohl(lo32)) << 32)
-               | static_cast<std::uint64_t>(ntohl(hi32));
+    const std::uint64_t value =
+        (static_cast<std::uint64_t>(ntohl(lo32)) << 32)
+            | static_cast<std::uint64_t>(ntohl(hi32));
+    return value;
   }
 
   inline static std::uint64_t Htonll(const std::uint64_t code) {
@@ -165,6 +192,7 @@ class SimpleSocketConnection {
   std::uint64_t request_data_length_;
   void *request_data_;
   SimpleSocketContent request_;
+  std::unique_ptr<std::string> error_message_;
 
   DISALLOW_COPY_AND_ASSIGN(SimpleSocketConnection);
 };

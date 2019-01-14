@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -49,18 +50,7 @@ class SocketIOHandle final : public IOHandle {
  public:
   explicit SocketIOHandle(SimpleSocketConnection *conn)
       : conn_(conn),
-        request_(conn_->getRequest()) {
-    const auto *it = request_.get("query");
-    CHECK(it != nullptr);
-    LineReaderBuffered line_reader;
-    line_reader.setBuffer(std::string(it->first, it->second));
-    while (!line_reader.bufferEmpty()) {
-      std::string command = line_reader.getNextCommand();
-      if (!command.empty()) {
-        commands_.emplace_back(std::move(command));
-      }
-    }
-  }
+        request_(conn_->getRequest()) {}
 
   ~SocketIOHandle() override {
     conn_->sendResponse(out_stream_.str(), err_stream_.str());
@@ -80,14 +70,27 @@ class SocketIOHandle final : public IOHandle {
   }
 
   std::vector<std::string> getCommands() const override {
-    return commands_;
+    if (conn_->hasError()) {
+      throw std::runtime_error(conn_->getErrorMessage());
+    }
+    std::vector<std::string> commands;
+    const auto *it = request_.get("query");
+    CHECK(it != nullptr);
+    LineReaderBuffered line_reader;
+    line_reader.setBuffer(std::string(it->first, it->second));
+    while (!line_reader.bufferEmpty()) {
+      std::string command = line_reader.getNextCommand();
+      if (!command.empty()) {
+        commands.emplace_back(std::move(command));
+      }
+    }
+    return commands;
   }
 
  private:
   std::unique_ptr<SimpleSocketConnection> conn_;
   const SimpleSocketContent &request_;
   MemStream out_stream_, err_stream_;
-  std::vector<std::string> commands_;
 
   DISALLOW_COPY_AND_ASSIGN(SocketIOHandle);
 };

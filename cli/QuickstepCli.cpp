@@ -308,10 +308,18 @@ int main(int argc, char* argv[]) {
   bool quitting = false;
   while (!quitting) {
     std::unique_ptr<quickstep::IOHandle> io_handle(io->getNextIOHandle());
+
     ScopedReassignment<FILE*> reassign_stdout(&stdout, io_handle->out());
     ScopedReassignment<FILE*> reassign_stderr(&stderr, io_handle->err());
 
-    const std::vector<std::string> cmds = io_handle->getCommands();
+    std::vector<std::string> cmds;
+    try {
+      cmds = io_handle->getCommands();
+    } catch (const std::exception &e) {
+      fprintf(io_handle->err(), "QUERY IO ERROR: %s\n", e.what());
+      continue;
+    }
+
     for (const std::string &cmd : cmds) {
       string *command_string = new string(cmd);
       LOG(INFO) << "Command received: " << *command_string;

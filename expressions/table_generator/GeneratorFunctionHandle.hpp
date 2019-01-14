@@ -60,6 +60,11 @@ typedef std::shared_ptr<const GeneratorFunctionHandle> GeneratorFunctionHandlePt
 class GeneratorFunctionHandle {
  public:
   /**
+   * @brief Virtual destructor.
+   */
+  virtual ~GeneratorFunctionHandle() {}
+
+  /**
    * @brief Get the number of output columns of this generator function.
    *
    * @return The number of output columns.

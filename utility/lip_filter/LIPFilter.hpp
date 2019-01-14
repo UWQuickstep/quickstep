@@ -48,6 +48,11 @@ enum class LIPFilterType {
 class LIPFilter {
  public:
   /**
+   * @brief Virtual destructor.
+   */
+  virtual ~LIPFilter() {}
+
+  /**
    * @breif Get the type of this LIPFilter.
    *
    * @return The type of this LIPFilter.

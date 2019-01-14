@@ -49,6 +49,11 @@ class GeneratorFunctionHandle;
 class GenerateSeries : public GeneratorFunction {
  public:
   /**
+   * @brief Virtual destructor.
+   */
+  virtual ~GenerateSeries() {}
+
+  /**
    * @brief Singleton instance of the GenerateSeries class.
    * @return A const reference to the singleton instance of the GenerateSeries
    *         class.
