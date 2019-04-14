@@ -36,6 +36,7 @@
 #include "query_optimizer/physical/PhysicalType.hpp"
 #include "query_optimizer/physical/Selection.hpp"
 #include "query_optimizer/physical/TopLevelPlan.hpp"
+#include "query_optimizer/rules/CollapseSelection.hpp"
 #include "query_optimizer/rules/PruneColumns.hpp"
 #include "types/TypeID.hpp"
 #include "types/TypedValue.hpp"
@@ -48,28 +49,6 @@ namespace optimizer {
 
 namespace E = ::quickstep::optimizer::expressions;
 namespace P = ::quickstep::optimizer::physical;
-
-namespace {
-
-P::PhysicalPtr wrapSelection(const P::PhysicalPtr &input) {
-  DCHECK(P::SomeTopLevelPlan::Matches(input));
-  const P::TopLevelPlanPtr &top_level_plan =
-      std::static_pointer_cast<const P::TopLevelPlan>(input);
-  const P::PhysicalPtr &plan = top_level_plan->plan();
-
-  if (P::SomeFilterJoin::Matches(plan)) {
-    return input;
-  }
-
-  const P::SelectionPtr selection =
-      P::Selection::Create(
-          plan,
-          E::ToNamedExpressions(top_level_plan->plan()->getOutputAttributes()),
-          nullptr /* filter_predicate */);
-  return input->copyWithNewChildren({ selection });
-}
-
-}  // namespace
 
 P::PhysicalPtr InjectJoinFilters::apply(const P::PhysicalPtr &input) {
   DCHECK(input->getPhysicalType() == P::PhysicalType::kTopLevelPlan);
@@ -88,15 +67,14 @@ P::PhysicalPtr InjectJoinFilters::apply(const P::PhysicalPtr &input) {
     return input;
   }
 
-  // Step 2. If the top level plan is a filter join, wrap it with a Selection
-  // to stabilize output columns.
-  output = wrapSelection(output);
-
-  // Step 3. Push down FilterJoin nodes to be evaluated early.
+  // Step 2. Push down FilterJoin nodes to be evaluated early.
   output = pushDownFilters(output);
 
-  // Step 4. Add Selection nodes for attaching the LIPFilters, if necessary.
+  // Step 3. Add Selection nodes for attaching the LIPFilters, if necessary.
   output = addFilterAnchors(output, false);
+
+  // Step 4. Collapse redundant Selection nodes.
+  output = CollapseSelection().apply(output);
 
   // Step 5. Because of the pushdown of FilterJoin nodes, there are optimization
   // opportunities for projecting columns early.
@@ -201,15 +179,18 @@ P::PhysicalPtr InjectJoinFilters::transformHashJoinToFilters(
       build_child = hash_join->right();
       build_side_filter_predicate = hash_join->build_predicate();
     }
-    return P::FilterJoin::Create(new_children[0],
-                                 build_child,
-                                 hash_join->left_join_attributes(),
-                                 hash_join->right_join_attributes(),
-                                 hash_join->project_expressions(),
-                                 build_side_filter_predicate,
-                                 is_anti_join,
-                                 hash_join->hasRepartition(),
-                                 hash_join->cloneOutputPartitionSchemeHeader());
+    return P::Selection::Create(
+        P::FilterJoin::Create(new_children[0],
+                              build_child,
+                              hash_join->left_join_attributes(),
+                              hash_join->right_join_attributes(),
+                              hash_join->project_expressions(),
+                              build_side_filter_predicate,
+                              is_anti_join,
+                              hash_join->hasRepartition(),
+                              hash_join->cloneOutputPartitionSchemeHeader()),
+       E::ToNamedExpressions(input->getOutputAttributes()),
+       /*filter_predicate=*/nullptr);
   }
 
   if (input->children() != new_children) {

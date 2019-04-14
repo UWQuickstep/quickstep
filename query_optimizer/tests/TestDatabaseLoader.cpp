@@ -48,7 +48,7 @@ namespace optimizer {
 
 CatalogRelation *TestDatabaseLoader::createTestRelation(bool allow_vchar) {
   std::unique_ptr<CatalogRelation> catalog_relation;
-  catalog_relation.reset(new CatalogRelation(&catalog_database_,
+  catalog_relation.reset(new CatalogRelation(catalog_database_,
                                              "Test" /* name */,
                                              0 /* id */,
                                              false /* temporary */));
@@ -83,7 +83,7 @@ CatalogRelation *TestDatabaseLoader::createTestRelation(bool allow_vchar) {
         ++attr_id));
   }
   test_relation_ = catalog_relation.get();
-  catalog_database_.addRelation(catalog_relation.release());
+  catalog_database_->addRelation(catalog_relation.release());
   return test_relation_;
 }
 
@@ -98,7 +98,7 @@ void TestDatabaseLoader::createJoinRelations() {
 
   for (std::size_t rel_idx = 0; rel_idx < rel_names.size(); ++rel_idx) {
     std::unique_ptr<CatalogRelation> relation(
-        new CatalogRelation(&catalog_database_,
+        new CatalogRelation(catalog_database_,
                             rel_names[rel_idx],
                             -1 /* id */,
                             true /* temporary */));
@@ -112,7 +112,7 @@ void TestDatabaseLoader::createJoinRelations() {
           TypeFactory::GetType(columns[col_idx].second),
           ++attr_id));
     }
-    catalog_database_.addRelation(relation.release());
+    catalog_database_->addRelation(relation.release());
   }
 }
 
@@ -122,7 +122,7 @@ void TestDatabaseLoader::loadTestRelation() {
 
   BlockPoolInsertDestination destination(*test_relation_,
                                          nullptr,
-                                         &storage_manager_,
+                                         storage_manager_,
                                          0 /* dummy op index */,
                                          0,  // dummy query ID.
                                          scheduler_client_id_,
@@ -182,12 +182,12 @@ void TestDatabaseLoader::processCatalogRelationNewBlockMessages() {
 }
 
 void TestDatabaseLoader::clear() {
-  for (const CatalogRelation &relation : catalog_database_) {
+  for (const CatalogRelation &relation : *catalog_database_) {
     const std::vector<block_id> relation_block_ids = relation.getBlocksSnapshot();
     for (const block_id relation_block_id : relation_block_ids) {
-      storage_manager_.deleteBlockOrBlobFile(relation_block_id);
+      storage_manager_->deleteBlockOrBlobFile(relation_block_id);
     }
-    catalog_database_.dropRelationById(relation.getID());
+    catalog_database_->dropRelationById(relation.getID());
   }
   test_relation_ = nullptr;
 }

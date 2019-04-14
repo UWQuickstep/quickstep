@@ -222,7 +222,7 @@ std::string LineReader::getNextCommand() {
             // Skip all the whitespaces before the command.
             const std::size_t start_position =
                 multiline_buffer.find_first_not_of(" \t\r\n");
-            DCHECK_LT(start_position, special_char_location + 1);
+            DCHECK_LE(start_position, special_char_location + 1);
             return multiline_buffer.substr(start_position,
                                            special_char_location + 1 - start_position);
           }

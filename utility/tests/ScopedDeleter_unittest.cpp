@@ -91,14 +91,18 @@ TEST(ScopedDeleterTest, DeletionTest) {
   bool base_1_deleted, base_2_deleted,
        derived_a_1_base_deleted, derived_a_1_derived_deleted,
        derived_a_2_base_deleted, derived_a_2_derived_deleted,
+       derived_a_3_base_deleted, derived_a_3_derived_deleted,
        derived_b_1_base_deleted, derived_b_1_derived_deleted,
        derived_b_2_base_deleted, derived_b_2_derived_deleted,
+       derived_b_3_base_deleted, derived_b_3_derived_deleted,
        other_1_deleted, other_2_deleted;
   base_1_deleted = base_2_deleted
       = derived_a_1_base_deleted = derived_a_1_derived_deleted
       = derived_a_2_base_deleted = derived_a_2_derived_deleted
+      = derived_a_3_base_deleted = derived_a_3_derived_deleted
       = derived_b_1_base_deleted = derived_b_1_derived_deleted
       = derived_b_2_base_deleted = derived_b_2_derived_deleted
+      = derived_b_3_base_deleted = derived_b_3_derived_deleted
       = other_1_deleted = other_2_deleted
       = false;
 
@@ -106,7 +110,7 @@ TEST(ScopedDeleterTest, DeletionTest) {
   ScopedDeleter deleter;
 
   deleter.addObject(new Base(&base_1_deleted));
-  deleter.addObject(new Base(&base_2_deleted));
+  deleter.createObject<Base>(&base_2_deleted);
 
   // Add one instance of DerivedA as itself, and one as a Base class pointer.
   deleter.addObject(new DerivedA(&derived_a_1_base_deleted,
@@ -114,6 +118,9 @@ TEST(ScopedDeleterTest, DeletionTest) {
   Base *derived_a_2 = new DerivedA(&derived_a_2_base_deleted,
                                    &derived_a_2_derived_deleted);
   deleter.addObject(derived_a_2);
+  // One more for testing 'createObject'.
+  deleter.createObject<DerivedA>(&derived_a_3_base_deleted,
+                                 &derived_a_3_derived_deleted);
 
   // Do the same for the other derived class.
   deleter.addObject(new DerivedB(&derived_b_1_base_deleted,
@@ -121,16 +128,21 @@ TEST(ScopedDeleterTest, DeletionTest) {
   Base *derived_b_2 = new DerivedB(&derived_b_2_base_deleted,
                                    &derived_b_2_derived_deleted);
   deleter.addObject(derived_b_2);
+  // One more for testing 'createObject'.
+  deleter.createObject<DerivedB>(&derived_b_3_base_deleted,
+                                 &derived_b_3_derived_deleted);
 
   // Also throw in a couple of objects that aren't part of the same inheritance
   // heirarchy.
   deleter.addObject(new Other(&other_1_deleted));
-  deleter.addObject(new Other(&other_2_deleted));
+  deleter.createObject<Other>(&other_2_deleted);
 
   // Add some heap-allocated built-in types (we don't directly check whether
   // these are deleted, but running under valgrind should report no leaks).
   deleter.addObject(new int);
   deleter.addObject(new float);
+  deleter.createObject<int>();
+  deleter.createObject<float>();
 
   // Have the deleter delete everything and verify that destructors were
   // invoked.
@@ -142,10 +154,14 @@ TEST(ScopedDeleterTest, DeletionTest) {
   EXPECT_TRUE(derived_a_1_derived_deleted);
   EXPECT_TRUE(derived_a_2_base_deleted);
   EXPECT_TRUE(derived_a_2_derived_deleted);
+  EXPECT_TRUE(derived_a_3_base_deleted);
+  EXPECT_TRUE(derived_a_3_derived_deleted);
   EXPECT_TRUE(derived_b_1_base_deleted);
   EXPECT_TRUE(derived_b_1_derived_deleted);
   EXPECT_TRUE(derived_b_2_base_deleted);
   EXPECT_TRUE(derived_b_2_derived_deleted);
+  EXPECT_TRUE(derived_b_3_base_deleted);
+  EXPECT_TRUE(derived_b_3_derived_deleted);
   EXPECT_TRUE(other_1_deleted);
   EXPECT_TRUE(other_2_deleted);
 
