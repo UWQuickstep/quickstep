@@ -56,7 +56,7 @@ third_party_lib_urls=("https://github.com/google/benchmark/archive/v1.1.0.tar.gz
                       "https://github.com/google/googletest/archive/release-1.8.0.tar.gz"
                       "https://github.com/antirez/linenoise/archive/1.0.tar.gz"
                       "https://github.com/google/re2/archive/2017-01-01.tar.gz"
-                      "https://github.com/gperftools/gperftools/releases/download/gperftools-2.5/gperftools-2.5.tar.gz"
+                      "https://github.com/gperftools/gperftools/releases/download/gperftools-2.7/gperftools-2.7.tar.gz"
                       )
 
 downloaded_archive_names=("v1.1.0.tar.gz"
@@ -64,7 +64,7 @@ downloaded_archive_names=("v1.1.0.tar.gz"
                           "release-1.8.0.tar.gz"
                           "1.0.tar.gz"
                           "2017-01-01.tar.gz"
-                          "gperftools-2.5.tar.gz"
+                          "gperftools-2.7.tar.gz"
                           )
 
 tar_options=("-xzf"
