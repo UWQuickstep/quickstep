@@ -1600,7 +1600,7 @@ L::LogicalPtr Resolver::resolveSetOperations(
     possible_attributes.push_back(possible_attribute);
   }
 
-  for (std::size_t opid = 0; opid < num_operation_attributes; ++opid) {
+  for (std::size_t opid = 0; opid < num_operands; ++opid) {
     // Generate a cast operation if needed.
     std::vector<E::NamedExpressionPtr> cast_expressions;
     for (std::size_t aid = 0; aid < num_operation_attributes; ++aid) {

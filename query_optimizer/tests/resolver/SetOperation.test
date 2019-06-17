@@ -39,14 +39,18 @@ TopLevelPlan
 | | | +-project_list=
 | | |   +-AttributeReference[id=0,name=int_col,relation=test,type=Int NULL]
 | | +-Project
-| |   +-input=TableReference[relation_name=Test,relation_alias=test]
-| |   | +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
-| |   | +-AttributeReference[id=7,name=long_col,relation=test,type=Long]
-| |   | +-AttributeReference[id=8,name=float_col,relation=test,type=Float]
-| |   | +-AttributeReference[id=9,name=double_col,relation=test,type=Double NULL]
-| |   | +-AttributeReference[id=10,name=char_col,relation=test,type=Char(20)]
-| |   | +-AttributeReference[id=11,name=vchar_col,relation=test,
-| |   |   type=VarChar(20) NULL]
+| |   +-input=Project
+| |   | +-input=TableReference[relation_name=Test,relation_alias=test]
+| |   | | +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
+| |   | | +-AttributeReference[id=7,name=long_col,relation=test,type=Long]
+| |   | | +-AttributeReference[id=8,name=float_col,relation=test,type=Float]
+| |   | | +-AttributeReference[id=9,name=double_col,relation=test,
+| |   | | | type=Double NULL]
+| |   | | +-AttributeReference[id=10,name=char_col,relation=test,type=Char(20)]
+| |   | | +-AttributeReference[id=11,name=vchar_col,relation=test,
+| |   | |   type=VarChar(20) NULL]
+| |   | +-project_list=
+| |   |   +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
 | |   +-project_list=
 | |     +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
 | +-project_attributes=
@@ -79,20 +83,27 @@ TopLevelPlan
 | | | +-project_list=
 | | |   +-AttributeReference[id=3,name=double_col,relation=test,type=Double NULL]
 | | +-Project
-| |   +-input=TableReference[relation_name=Test,relation_alias=test]
-| |   | +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
-| |   | +-AttributeReference[id=7,name=long_col,relation=test,type=Long]
-| |   | +-AttributeReference[id=8,name=float_col,relation=test,type=Float]
-| |   | +-AttributeReference[id=9,name=double_col,relation=test,type=Double NULL]
-| |   | +-AttributeReference[id=10,name=char_col,relation=test,type=Char(20)]
-| |   | +-AttributeReference[id=11,name=vchar_col,relation=test,
-| |   |   type=VarChar(20) NULL]
+| |   +-input=Project
+| |   | +-input=TableReference[relation_name=Test,relation_alias=test]
+| |   | | +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
+| |   | | +-AttributeReference[id=7,name=long_col,relation=test,type=Long]
+| |   | | +-AttributeReference[id=8,name=float_col,relation=test,type=Float]
+| |   | | +-AttributeReference[id=9,name=double_col,relation=test,
+| |   | | | type=Double NULL]
+| |   | | +-AttributeReference[id=10,name=char_col,relation=test,type=Char(20)]
+| |   | | +-AttributeReference[id=11,name=vchar_col,relation=test,
+| |   | |   type=VarChar(20) NULL]
+| |   | +-project_list=
+| |   |   +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
 | |   +-project_list=
-| |     +-AttributeReference[id=6,name=int_col,relation=test,type=Int NULL]
+| |     +-Alias[id=12,name=int_col,relation=,type=Double NULL]
+| |       +-Cast[target_type=Double NULL]
+| |         +-operand=AttributeReference[id=6,name=int_col,relation=test,
+| |           type=Int NULL]
 | +-project_attributes=
-|   +-AttributeReference[id=12,name=double_col,relation=,type=Double NULL]
+|   +-AttributeReference[id=13,name=double_col,relation=,type=Double NULL]
 +-output_attributes=
-  +-AttributeReference[id=12,name=double_col,relation=,type=Double NULL]
+  +-AttributeReference[id=13,name=double_col,relation=,type=Double NULL]
 ==
 
 SELECT int_col, double_col FROM test
