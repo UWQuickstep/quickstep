@@ -75,6 +75,7 @@ target_link_libraries(quickstep_queryoptimizer_tests_TestDatabaseLoader
                       quickstep_types_TypedValue
                       quickstep_types_containers_Tuple
                       quickstep_utility_Macros
+                      quickstep_utility_ScopedDeleter
                       tmb)
 if (ENABLE_DISTRIBUTED)
   target_link_libraries(quickstep_queryoptimizer_tests_TestDatabaseLoader
@@ -139,6 +140,7 @@ target_link_libraries(quickstep_queryoptimizer_tests_ExecutionGeneratorTest
                       glog
                       gtest
                       quickstep_catalog_CatalogDatabase
+                      quickstep_cli_CommandExecutor
                       quickstep_cli_DropRelation
                       quickstep_cli_PrintToScreen
                       quickstep_parser_ParseStatement
@@ -148,10 +150,17 @@ target_link_libraries(quickstep_queryoptimizer_tests_ExecutionGeneratorTest
                       quickstep_queryexecution_QueryExecutionUtil
                       quickstep_queryexecution_Worker
                       quickstep_queryexecution_WorkerDirectory
+                      quickstep_queryoptimizer_LogicalGenerator
                       quickstep_queryoptimizer_Optimizer
                       quickstep_queryoptimizer_OptimizerContext
+                      quickstep_queryoptimizer_PhysicalGenerator
                       quickstep_queryoptimizer_QueryHandle
+                      quickstep_queryoptimizer_QueryProcessor
+                      quickstep_queryoptimizer_logical_Logical
+                      quickstep_queryoptimizer_physical_Physical
                       quickstep_queryoptimizer_tests_TestDatabaseLoader
+                      quickstep_storage_StorageConstants
+                      quickstep_storage_StorageManager
                       quickstep_threading_ThreadIDBasedMap
                       quickstep_utility_Macros
                       quickstep_utility_MemStream

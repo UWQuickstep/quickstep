@@ -1,0 +1,151 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Initialize test tables.
+
+CREATE TABLE R(x INT, y INT);
+CREATE TABLE S(z INT);
+
+INSERT INTO R
+SELECT i, i
+FROM generate_series(0, 100000, 2) AS gs(i);
+
+INSERT INTO S
+SELECT i
+FROM generate_series(0, 100000, 3) AS gs(i);
+--
+==
+
+\analyze
+--
+Analyzing Test ... done
+Analyzing R ... done
+Analyzing S ... done
+==
+
+# Tests the Lookahead Information Passing + Exact Filter optimizations.
+
+[default print_physical_plan]
+
+SELECT x FROM R WHERE y IN (SELECT z FROM S) AND x % 10000 = 0;
+--
+TopLevelPlan
++-plan=Selection[has_repartition=false]
+| +-input=FilterJoin[has_repartition=false,is_anti_join=false]
+| | +-left=TableReference[relation=R]
+| | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | +-AttributeReference[id=1,name=y,relation=R,type=Int]
+| | +-right=TableReference[relation=S]
+| | | +-AttributeReference[id=2,name=z,relation=S,type=Int]
+| | +-project_expressions=
+| | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | +-probe_attributes=
+| | | +-AttributeReference[id=1,name=y,relation=R,type=Int]
+| | +-build_attributes=
+| |   +-AttributeReference[id=2,name=z,relation=S,type=Int]
+| +-filter_predicate=Equal
+| | +-Modulo
+| | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | +-Literal[value=10000,type=Int]
+| | +-Literal[value=0,type=Int]
+| +-project_expressions=
+|   +-AttributeReference[id=0,name=x,relation=R,type=Int]
++-output_attributes=
+  +-AttributeReference[id=0,name=x,relation=R,type=Int]
+--
++-----------+
+|x          |
++-----------+
+|          0|
+|      30000|
+|      60000|
+|      90000|
++-----------+
+==
+
+SELECT SUM(x)
+FROM (
+  SELECT x FROM R WHERE y IN (SELECT z FROM S) AND x % 5 = 0
+  UNION ALL
+  SELECT x FROM R WHERE y IN (SELECT z FROM S) AND x % 7 = 0
+) t;
+--
+TopLevelPlan
++-plan=Selection[has_repartition=false]
+| +-input=Aggregate[has_repartition=false]
+| | +-input=UnionAll
+| | | +-operands=
+| | | | +-Selection[has_repartition=false]
+| | | | | +-input=FilterJoin[has_repartition=false,is_anti_join=false]
+| | | | | | +-left=TableReference[relation=R]
+| | | | | | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | | | | | +-AttributeReference[id=1,name=y,relation=R,type=Int]
+| | | | | | +-right=TableReference[relation=S]
+| | | | | | | +-AttributeReference[id=2,name=z,relation=S,type=Int]
+| | | | | | +-project_expressions=
+| | | | | | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | | | | +-probe_attributes=
+| | | | | | | +-AttributeReference[id=1,name=y,relation=R,type=Int]
+| | | | | | +-build_attributes=
+| | | | | |   +-AttributeReference[id=2,name=z,relation=S,type=Int]
+| | | | | +-filter_predicate=Equal
+| | | | | | +-Modulo
+| | | | | | | +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | | | | | +-Literal[value=5,type=Int]
+| | | | | | +-Literal[value=0,type=Int]
+| | | | | +-project_expressions=
+| | | | |   +-AttributeReference[id=0,name=x,relation=R,type=Int]
+| | | | +-Selection[has_repartition=false]
+| | | |   +-input=FilterJoin[has_repartition=false,is_anti_join=false]
+| | | |   | +-left=TableReference[relation=R]
+| | | |   | | +-AttributeReference[id=3,name=x,relation=R,type=Int]
+| | | |   | | +-AttributeReference[id=4,name=y,relation=R,type=Int]
+| | | |   | +-right=TableReference[relation=S]
+| | | |   | | +-AttributeReference[id=5,name=z,relation=S,type=Int]
+| | | |   | +-project_expressions=
+| | | |   | | +-AttributeReference[id=3,name=x,relation=R,type=Int]
+| | | |   | +-probe_attributes=
+| | | |   | | +-AttributeReference[id=4,name=y,relation=R,type=Int]
+| | | |   | +-build_attributes=
+| | | |   |   +-AttributeReference[id=5,name=z,relation=S,type=Int]
+| | | |   +-filter_predicate=Equal
+| | | |   | +-Modulo
+| | | |   | | +-AttributeReference[id=3,name=x,relation=R,type=Int]
+| | | |   | | +-Literal[value=7,type=Int]
+| | | |   | +-Literal[value=0,type=Int]
+| | | |   +-project_expressions=
+| | | |     +-AttributeReference[id=3,name=x,relation=R,type=Int]
+| | | +-project_attributes=
+| | |   +-AttributeReference[id=6,name=x,relation=,type=Int]
+| | +-grouping_expressions=
+| | | +-[]
+| | +-aggregate_expressions=
+| |   +-Alias[id=7,name=,alias=$aggregate0,relation=$aggregate,type=Long NULL]
+| |     +-AggregateFunction[function=SUM]
+| |       +-AttributeReference[id=6,name=x,relation=,type=Int]
+| +-project_expressions=
+|   +-Alias[id=7,name=,alias=SUM(x),relation=,type=Long NULL]
+|     +-AttributeReference[id=7,name=,alias=$aggregate0,relation=$aggregate,
+|       type=Long NULL]
++-output_attributes=
+  +-AttributeReference[id=7,name=,alias=SUM(x),relation=,type=Long NULL]
+--
++--------------------+
+|SUM(x)              |
++--------------------+
+|           285685710|
++--------------------+

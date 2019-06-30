@@ -214,6 +214,7 @@ target_link_libraries(quickstep_queryoptimizer_rules_InjectJoinFilters
                       quickstep_queryoptimizer_physical_PhysicalType
                       quickstep_queryoptimizer_physical_Selection
                       quickstep_queryoptimizer_physical_TopLevelPlan
+                      quickstep_queryoptimizer_rules_CollapseSelection
                       quickstep_queryoptimizer_rules_PruneColumns
                       quickstep_queryoptimizer_rules_Rule
                       quickstep_types_TypeID

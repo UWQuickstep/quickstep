@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
           new quickstep::optimizer::ExecutionGeneratorTestRunner(argv[3]));
   test_driver.reset(
       new quickstep::TextBasedTestDriver(&input_file, test_runner.get()));
-  test_driver->registerOption(
-      quickstep::optimizer::ExecutionGeneratorTestRunner::kResetOption);
+  test_driver->registerOptions(
+      quickstep::optimizer::ExecutionGeneratorTestRunner::kTestOptions);
 
   ::testing::InitGoogleTest(&argc, argv);
   int success = RUN_ALL_TESTS();

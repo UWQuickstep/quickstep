@@ -64,6 +64,19 @@ class ScopedDeleter {
   }
 
   /**
+   * @brief Create an object and add it to the pool of objects to be deleted by
+   *        this ScopedDeleter.
+   *
+   * @param arguments Forwarded varadic arguments for constructing the object.
+   **/
+  template <typename T, typename ...ArgTypes>
+  inline T* createObject(ArgTypes &&...arguments) {
+    T* object = new T(std::forward<ArgTypes>(arguments)...);
+    objects_.emplace_back(&DeleteObject<T>, object);
+    return object;
+  }
+
+  /**
    * @brief Delete all objects held by this ScopedDeleter without destroying
    *        it.
    **/

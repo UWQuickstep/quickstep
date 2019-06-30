@@ -32,8 +32,9 @@
 #include "query_execution/Worker.hpp"
 #include "query_execution/WorkerDirectory.hpp"
 #include "query_execution/WorkerMessage.hpp"
-#include "query_optimizer/Optimizer.hpp"
+#include "query_optimizer/QueryProcessor.hpp"
 #include "query_optimizer/tests/TestDatabaseLoader.hpp"
+#include "storage/StorageManager.hpp"
 #include "threading/ThreadIDBasedMap.hpp"
 #include "utility/Macros.hpp"
 #include "utility/textbased_test/TextBasedTestDriver.hpp"
@@ -50,48 +51,18 @@ namespace optimizer {
 class ExecutionGeneratorTestRunner : public TextBasedTestRunner {
  public:
   /**
-   * @brief If this option is enabled, recreate the entire database and
-   * repopulate the data before every test.
+   * List of test options.
+   * --
+   * reset_before_execution: Recreate the entire database and repopulate the
+   *                         data before every test.
+   * print_physical_plan: Also print the optimized physical plan.
    */
-  static const char kResetOption[];
+  static const std::vector<std::string> kTestOptions;
 
   /**
    * @brief Constructor.
    */
-  explicit ExecutionGeneratorTestRunner(const std::string &storage_path)
-      : test_database_loader_(storage_path),
-        thread_id_map_(ClientIDMap::Instance()) {
-    test_database_loader_.createTestRelation(false /* allow_vchar */);
-    test_database_loader_.loadTestRelation();
-
-    bus_.Initialize();
-
-    main_thread_client_id_ = bus_.Connect();
-    bus_.RegisterClientAsSender(main_thread_client_id_, kAdmitRequestMessage);
-    bus_.RegisterClientAsSender(main_thread_client_id_, kPoisonMessage);
-    bus_.RegisterClientAsReceiver(main_thread_client_id_, kWorkloadCompletionMessage);
-
-    worker_.reset(new Worker(0, &bus_));
-
-    std::vector<client_id> worker_client_ids;
-    worker_client_ids.push_back(worker_->getBusClientID());
-
-    // We don't use the NUMA aware version of foreman code.
-    std::vector<int> numa_nodes;
-    numa_nodes.push_back(-1);
-
-    workers_.reset(new WorkerDirectory(1 /* number of workers */,
-                                       worker_client_ids, numa_nodes));
-    foreman_.reset(
-        new ForemanSingleNode(main_thread_client_id_,
-                              workers_.get(),
-                              &bus_,
-                              test_database_loader_.catalog_database(),
-                              test_database_loader_.storage_manager()));
-
-    foreman_->start();
-    worker_->start();
-  }
+  explicit ExecutionGeneratorTestRunner(const std::string &storage_path);
 
   ~ExecutionGeneratorTestRunner() {
     QueryExecutionUtil::BroadcastPoisonMessage(main_thread_client_id_, &bus_);
@@ -105,8 +76,9 @@ class ExecutionGeneratorTestRunner : public TextBasedTestRunner {
 
  private:
   SqlParserWrapper sql_parser_;
-  TestDatabaseLoader test_database_loader_;
-  Optimizer optimizer_;
+  StorageManager storage_manager_;
+  std::unique_ptr<QueryProcessor> query_processor_;
+  std::unique_ptr<TestDatabaseLoader> test_database_loader_;
 
   MessageBusImpl bus_;
   std::unique_ptr<ForemanSingleNode> foreman_;

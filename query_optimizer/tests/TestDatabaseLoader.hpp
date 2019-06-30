@@ -32,6 +32,7 @@
 #include "storage/StorageManager.hpp"
 #include "threading/ThreadIDBasedMap.hpp"
 #include "utility/Macros.hpp"
+#include "utility/ScopedDeleter.hpp"
 
 #include "tmb/id_typedefs.h"
 
@@ -64,10 +65,22 @@ class TestDatabaseLoader {
    */
   explicit TestDatabaseLoader(const std::string &storage_path = "")
       : thread_id_map_(ClientIDMap::Instance()),
-        catalog_database_(nullptr /* parent */,
-                          "TestDatabase" /* name */,
-                          0 /* id */),
-        storage_manager_(storage_path),
+        catalog_database_(scoped_deleter_.createObject<CatalogDatabase>(
+            /*parent=*/nullptr, /*name=*/"TestDatabase", /*id=*/0)),
+        storage_manager_(
+            scoped_deleter_.createObject<StorageManager>(storage_path)),
+        test_relation_(nullptr) {
+    init();
+  }
+
+  /**
+   * @brief Constructor with specified catalog database and storage manager.
+   */
+  explicit TestDatabaseLoader(CatalogDatabase* catalog_database,
+                              StorageManager* storage_manager)
+      : thread_id_map_(ClientIDMap::Instance()),
+        catalog_database_(catalog_database),
+        storage_manager_(storage_manager),
         test_relation_(nullptr) {
     init();
   }
@@ -109,14 +122,14 @@ class TestDatabaseLoader {
    *
    * @return The test database.
    */
-  CatalogDatabase* catalog_database() { return &catalog_database_; }
+  CatalogDatabase* catalog_database() { return catalog_database_; }
 
   /**
    * @brief Gets the storage manager.
    *
    * @return The storage manager.
    */
-  StorageManager* storage_manager() { return &storage_manager_; }
+  StorageManager* storage_manager() { return storage_manager_; }
 
   /**
    * @brief Gets the test relation.
@@ -188,8 +201,11 @@ class TestDatabaseLoader {
   MessageBusImpl bus_;
   tmb::client_id scheduler_client_id_;
 
-  CatalogDatabase catalog_database_;
-  StorageManager storage_manager_;
+  ScopedDeleter scoped_deleter_;
+
+  CatalogDatabase* catalog_database_;
+  StorageManager* storage_manager_;
+
   // Owned by catalog_database_.
   CatalogRelation* test_relation_;
 
