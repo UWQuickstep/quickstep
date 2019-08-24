@@ -6,15 +6,7 @@
 [Travis Widget]: https://travis-ci.org/UWQuickstep/quickstep.svg?branch=master
 
 ## What is Quickstep?
-Quickstep is high-performance database engine designed to exploit the full potential of hardware that is packed in modern computing boxes (servers and laptops). The initial version (available now!) targets single-node in-memory environments. If your data spills overs the memory limit Quickstep will still work, so you don't have to obsessively worry about the in-memory part. Also, if your working set fits in memory then Quickstep will transparently and automatically figure that out, and cache that hot set to  deliver in-memory performance.
-
-Distributed execution is the next big feature for Quickstep.
-
-Quickstep began life in 2011 as a
-[research project at the University of Wisconsin](https://www.cs.wisc.edu/~jignesh),
-entered incubation at the
-[Apache Software Foundation](https://www.apache.org) in April, 2016,
-and retired from the incubation on November 30th, 2018.
+Quickstep is high-performance database engine designed to exploit the full potential of hardware that is packed in modern computing boxes (servers and laptops). This version  targets single-node in-memory environments. If your data spills overs the memory limit Quickstep will still work, so you don't have to obsessively worry about the in-memory part. Also, if your working set fits in memory then Quickstep will transparently and automatically figure that out, and cache that hot set to  deliver in-memory performance.
 
 ## Why Quickstep?
 Did you know that the hardware that you have in your laptop was spread across a small cluster just a decade ago? (PS: Hopefully you are not using a very old laptop!) If you look at a high-end server box, then that packs compute and storage power that was a full rack about 5 years ago! And, the way hardware technology is going, that box is going to become even more powerful in the future. In fact, it is likely that the computing power in each box is going to grow faster than other hardware components (e.g. networking) in data centers. So, if you care about performance and/or total operating costs, paying attention to single box performance is likely to be super important in the long run.
