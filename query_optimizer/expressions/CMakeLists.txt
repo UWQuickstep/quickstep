@@ -160,6 +160,7 @@ target_link_libraries(quickstep_queryoptimizer_expressions_Expression
                       quickstep_utility_Macros)
 target_link_libraries(quickstep_queryoptimizer_expressions_ExpressionUtil
                       glog
+                      quickstep_queryoptimizer_expressions_Alias
                       quickstep_queryoptimizer_expressions_AttributeReference
                       quickstep_queryoptimizer_expressions_ExprId
                       quickstep_queryoptimizer_expressions_NamedExpression

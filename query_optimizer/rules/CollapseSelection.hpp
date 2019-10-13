@@ -22,7 +22,9 @@
 
 #include <string>
 
+#include "query_optimizer/physical/Aggregate.hpp"
 #include "query_optimizer/physical/Physical.hpp"
+#include "query_optimizer/physical/Selection.hpp"
 #include "query_optimizer/rules/BottomUpRule.hpp"
 #include "utility/Macros.hpp"
 
@@ -51,6 +53,10 @@ class CollapseSelection : public BottomUpRule<physical::Physical> {
 
  protected:
   physical::PhysicalPtr applyToNode(const physical::PhysicalPtr &input) override;
+
+  physical::PhysicalPtr handleSelection(const physical::SelectionPtr &selection);
+
+  physical::PhysicalPtr handleAggregate(const physical::AggregatePtr &aggregate);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(CollapseSelection);

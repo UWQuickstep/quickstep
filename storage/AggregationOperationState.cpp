@@ -83,10 +83,7 @@ AggregationOperationState::AggregationOperationState(
     const std::size_t num_partitions,
     const HashTableImplType hash_table_impl_type,
     const std::vector<HashTableImplType> &distinctify_hash_table_impl_types,
-    StorageManager *storage_manager,
-    const size_t collision_free_vector_memory_size,
-    const size_t collision_free_vector_num_init_partitions,
-    const vector<size_t> &collision_free_vector_state_offsets)
+    StorageManager *storage_manager)
     : input_relation_(input_relation),
       is_aggregate_collision_free_(
           group_by.empty() ? false
@@ -118,7 +115,7 @@ AggregationOperationState::AggregationOperationState(
     }
   }
 
-  std::vector<AggregationHandle *> group_by_handles;
+  std::vector<AggregationHandle*> group_by_handles;
 
   // Set up each individual aggregate in this operation.
   std::vector<const AggregateFunction *>::const_iterator agg_func_it =
@@ -216,11 +213,7 @@ AggregationOperationState::AggregationOperationState(
               group_by_types_,
               estimated_num_entries,
               group_by_handles,
-              storage_manager,
-              num_partitions,
-              collision_free_vector_memory_size,
-              collision_free_vector_num_init_partitions,
-              collision_free_vector_state_offsets));
+              storage_manager));
     } else if (is_aggregate_partitioned_) {
       if (all_distinct_) {
         DCHECK_EQ(1u, group_by_handles.size());
@@ -300,19 +293,6 @@ AggregationOperationState* AggregationOperationState::ReconstructFromProto(
         PredicateFactory::ReconstructFromProto(proto.predicate(), database));
   }
 
-  size_t collision_free_vector_memory_size = 0;
-  size_t collision_free_vector_num_init_partitions = 0;
-  vector<size_t> collision_free_vector_state_offsets;
-  if (proto.has_collision_free_vector_info()) {
-    const serialization::CollisionFreeVectorInfo &collision_free_vector_info =
-        proto.collision_free_vector_info();
-    collision_free_vector_memory_size = collision_free_vector_info.memory_size();
-    collision_free_vector_num_init_partitions = collision_free_vector_info.num_init_partitions();
-    for (int i = 0; i < collision_free_vector_info.state_offsets_size(); ++i) {
-      collision_free_vector_state_offsets.push_back(collision_free_vector_info.state_offsets(i));
-    }
-  }
-
   return new AggregationOperationState(
       database.getRelationSchemaById(proto.relation_id()),
       aggregate_functions,
@@ -325,10 +305,7 @@ AggregationOperationState* AggregationOperationState::ReconstructFromProto(
       proto.num_partitions(),
       HashTableImplTypeFromProto(proto.hash_table_impl_type()),
       distinctify_hash_table_impl_types,
-      storage_manager,
-      collision_free_vector_memory_size,
-      collision_free_vector_num_init_partitions,
-      collision_free_vector_state_offsets);
+      storage_manager);
 }
 
 bool AggregationOperationState::ProtoIsValid(
@@ -407,6 +384,26 @@ bool AggregationOperationState::ProtoIsValid(
   }
 
   return true;
+}
+
+std::size_t AggregationOperationState::getNumInitializationPartitions() const {
+  if (is_aggregate_collision_free_) {
+    return static_cast<CollisionFreeVectorTable *>(
+        collision_free_hashtable_.get())->getNumInitializationPartitions();
+  } else {
+    return 0u;
+  }
+}
+
+std::size_t AggregationOperationState::getNumFinalizationPartitions() const {
+  if (is_aggregate_collision_free_) {
+    return static_cast<CollisionFreeVectorTable *>(
+        collision_free_hashtable_.get())->getNumFinalizationPartitions();
+  } else if (is_aggregate_partitioned_) {
+    return partitioned_group_by_hashtable_pool_->getNumPartitions();
+  } else  {
+    return 1u;
+  }
 }
 
 CollisionFreeVectorTable* AggregationOperationState

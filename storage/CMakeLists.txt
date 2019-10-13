@@ -415,6 +415,7 @@ target_link_libraries(quickstep_storage_CSBTreeIndexSubBlock
 target_link_libraries(quickstep_storage_CollisionFreeVectorTable
                       glog
                       quickstep_catalog_CatalogTypedefs
+                      quickstep_expressions_aggregation_AggregateFunctionTraits
                       quickstep_expressions_aggregation_AggregationHandle
                       quickstep_expressions_aggregation_AggregationID
                       quickstep_storage_HashTableBase
@@ -427,10 +428,12 @@ target_link_libraries(quickstep_storage_CollisionFreeVectorTable
                       quickstep_storage_ValueAccessorUtil
                       quickstep_types_Type
                       quickstep_types_TypeID
+                      quickstep_types_TypeTraits
                       quickstep_types_containers_ColumnVector
                       quickstep_types_containers_ColumnVectorsValueAccessor
                       quickstep_utility_BarrieredReadWriteConcurrentBitVector
-                      quickstep_utility_Macros)
+                      quickstep_utility_Macros
+                      quickstep_utility_meta_MultipleDispatcher)
 target_link_libraries(quickstep_storage_ColumnStoreUtil
                       quickstep_catalog_CatalogAttribute
                       quickstep_catalog_CatalogRelationSchema

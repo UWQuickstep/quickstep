@@ -159,6 +159,7 @@ QS_PROTOBUF_GENERATE_CPP(quickstep_utility_SortConfiguration_proto_srcs
                          SortConfiguration.proto)
 
 add_subdirectory(lip_filter)
+add_subdirectory(meta)
 
 # Declare micro-libs:
 add_library(quickstep_utility_Alignment ../empty_src.cpp Alignment.hpp)

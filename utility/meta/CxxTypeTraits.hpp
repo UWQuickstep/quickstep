@@ -17,29 +17,47 @@
  * under the License.
  **/
 
-#ifndef QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
-#define QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
+#ifndef QUICKSTEP_UTILITY_META_CXX_TYPE_TRAITS_HPP_
+#define QUICKSTEP_UTILITY_META_CXX_TYPE_TRAITS_HPP_
+
+#include <cstddef>
+#include <cstdint>
+
+#include "utility/meta/Common.hpp"
 
 namespace quickstep {
+namespace meta {
 
-/** \addtogroup Expressions
+/** \addtogroup Utility
  *  @{
  */
 
 /**
- * @brief The possible types of aggregations.
- **/
-enum AggregationID {
-  kAvg = 0,
-  kCount,
-  kMax,
-  kMin,
-  kSum,
-  kHasMultipleValues
+ * @brief C++ supported integer types.
+ */
+using CxxSupportedIntegerSizes = meta::IntegerSequence<1u, 2u, 4u, 8u>;
+
+/**
+ * @brief Get C++ unsigned integer type from size.
+ */
+template <std::size_t size> struct UnsignedInteger;
+
+template <> struct UnsignedInteger<1u> {
+  using type = std::uint8_t;
+};
+template <> struct UnsignedInteger<2u> {
+  using type = std::uint16_t;
+};
+template <> struct UnsignedInteger<4u> {
+  using type = std::uint32_t;
+};
+template <> struct UnsignedInteger<8u> {
+  using type = std::uint64_t;
 };
 
 /** @} */
 
+}  // namespace meta
 }  // namespace quickstep
 
-#endif  // QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
+#endif  // QUICKSTEP_UTILITY_META_CXX_TYPE_TRAITS_HPP_

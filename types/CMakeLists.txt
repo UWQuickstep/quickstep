@@ -52,6 +52,7 @@ add_library(quickstep_types_Type Type.cpp Type.hpp)
 add_library(quickstep_types_TypeErrors ../empty_src.cpp TypeErrors.hpp)
 add_library(quickstep_types_TypeFactory TypeFactory.cpp TypeFactory.hpp)
 add_library(quickstep_types_TypeID TypeID.cpp TypeID.hpp)
+add_library(quickstep_types_TypeTraits ../empty_src.cpp TypeTraits.hpp)
 add_library(quickstep_types_Type_proto ${types_Type_proto_srcs})
 add_library(quickstep_types_TypedValue TypedValue.cpp TypedValue.hpp)
 add_library(quickstep_types_TypedValue_proto ${types_TypedValue_proto_srcs})
@@ -185,6 +186,8 @@ target_link_libraries(quickstep_types_TypeFactory
                       quickstep_types_VarCharType
                       quickstep_types_YearMonthIntervalType
                       quickstep_utility_Macros)
+target_link_libraries(quickstep_types_TypeTraits
+                      quickstep_types_TypeID)
 target_link_libraries(quickstep_types_Type_proto
                       ${PROTOBUF_LIBRARY})
 target_link_libraries(quickstep_types_TypedValue
@@ -245,6 +248,7 @@ target_link_libraries(quickstep_types
                       quickstep_types_TypeErrors
                       quickstep_types_TypeFactory
                       quickstep_types_TypeID
+                      quickstep_types_TypeTraits
                       quickstep_types_Type_proto
                       quickstep_types_TypedValue
                       quickstep_types_TypedValue_proto

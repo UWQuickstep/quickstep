@@ -108,12 +108,6 @@ class AggregationOperationState {
    * @param storage_manager The StorageManager to use for allocating hash
    *        tables. Single aggregation state (when GROUP BY list is not
    *        specified) is not allocated using memory from storage manager.
-   * @param collision_free_vector_memory_size For CollisionFreeVectorTable,
-   *        the memory size.
-   * @param collision_free_vector_num_init_partitions For
-   *        CollisionFreeVectorTable, the number of partitions to initialize.
-   * @param collision_free_vector_state_offsets For CollisionFreeVectorTable,
-   *        the offsets for each state.
    */
   AggregationOperationState(
       const CatalogRelationSchema &input_relation,
@@ -127,10 +121,7 @@ class AggregationOperationState {
       const std::size_t num_partitions,
       const HashTableImplType hash_table_impl_type,
       const std::vector<HashTableImplType> &distinctify_hash_table_impl_types,
-      StorageManager *storage_manager,
-      const std::size_t collision_free_vector_memory_size = 0,
-      const std::size_t collision_free_vector_num_init_partitions = 0,
-      const std::vector<std::size_t> &collision_free_vector_state_offsets = std::vector<std::size_t>());
+      StorageManager *storage_manager);
 
   ~AggregationOperationState() {}
 
@@ -173,6 +164,14 @@ class AggregationOperationState {
    * @return The number of partitions to be used for initializing the aggregation.
    **/
   std::size_t getNumInitializationPartitions() const;
+
+  /**
+   * @brief Get the number of partitions to be used for finalizing the
+   *        aggregation.
+   *
+   * @return The number of partitions to be used for finalizing the aggregation.
+   **/
+  std::size_t getNumFinalizationPartitions() const;
 
   /**
    * @brief Initialize the specified partition of this aggregation.

@@ -684,7 +684,9 @@ bool StarSchemaSimpleCostModel::canUseCollisionFreeAggregation(
     // TODO(jianqiao): Support AggregationID::AVG.
     if (!QUICKSTEP_EQUALS_ANY_CONSTANT(agg_func->getAggregate().getAggregationID(),
                                        AggregationID::kCount,
-                                       AggregationID::kSum)) {
+                                       AggregationID::kSum,
+                                       AggregationID::kMin,
+                                       AggregationID::kMax)) {
       return false;
     }
 

@@ -41,6 +41,7 @@ add_library(quickstep_expressions_aggregation_AggregateFunctionMin
 add_library(quickstep_expressions_aggregation_AggregateFunctionSum
             AggregateFunctionSum.cpp
             AggregateFunctionSum.hpp)
+add_library(quickstep_expressions_aggregation_AggregateFunctionTraits ../../empty_src.cpp AggregateFunctionTraits.hpp)
 add_library(quickstep_expressions_aggregation_AggregateFunction_proto
             ${expressions_aggregation_AggregateFunction_proto_srcs})
 add_library(quickstep_expressions_aggregation_AggregationConcreteHandle
@@ -137,6 +138,13 @@ target_link_libraries(quickstep_expressions_aggregation_AggregateFunctionSum
                       quickstep_types_operations_binaryoperations_BinaryOperationFactory
                       quickstep_types_operations_binaryoperations_BinaryOperationID
                       quickstep_utility_Macros)
+target_link_libraries(quickstep_expressions_aggregation_AggregateFunctionTraits
+                      glog
+                      quickstep_expressions_aggregation_AggregationID
+                      quickstep_types_TypeID
+                      quickstep_types_TypeTraits
+                      quickstep_utility_meta_Common
+                      quickstep_utility_meta_TypeList)
 target_link_libraries(quickstep_expressions_aggregation_AggregateFunction_proto
                       ${PROTOBUF_LIBRARY})
 target_link_libraries(quickstep_expressions_aggregation_AggregationConcreteHandle
@@ -243,6 +251,7 @@ target_link_libraries(quickstep_expressions_aggregation
                       quickstep_expressions_aggregation_AggregateFunctionMax
                       quickstep_expressions_aggregation_AggregateFunctionMin
                       quickstep_expressions_aggregation_AggregateFunctionSum
+                      quickstep_expressions_aggregation_AggregateFunctionTraits
                       quickstep_expressions_aggregation_AggregateFunction_proto
                       quickstep_expressions_aggregation_AggregationConcreteHandle
                       quickstep_expressions_aggregation_AggregationHandle

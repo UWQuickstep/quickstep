@@ -26,6 +26,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "query_optimizer/expressions/Alias.hpp"
 #include "query_optimizer/expressions/AttributeReference.hpp"
 #include "query_optimizer/expressions/ExprId.hpp"
 #include "query_optimizer/expressions/NamedExpression.hpp"
@@ -230,6 +231,27 @@ std::vector<NamedExpressionPtr> ToNamedExpressions(
   for (const std::shared_ptr<const ExpressionType> &expression : expressions) {
     NamedExpressionPtr cast_expression;
     CHECK(SomeNamedExpression::MatchesWithConditionalCast(expression, &cast_expression))
+        << expression->toString();
+    cast_expressions.push_back(cast_expression);
+  }
+  return cast_expressions;
+}
+
+/**
+ * @brief Casts a list of Expressions to a list of Aliases.
+ *
+ * @param expressions A list of expressions to be cast to Alias.
+ *                    The expressions must be of type Alias.
+ * @return A list of casted Aliases.
+ */
+template <class ExpressionType>
+std::vector<AliasPtr> ToAliases(
+    const std::vector<std::shared_ptr<const ExpressionType>> &expressions) {
+  std::vector<AliasPtr> cast_expressions;
+  cast_expressions.reserve(expressions.size());
+  for (const std::shared_ptr<const ExpressionType> &expression : expressions) {
+    AliasPtr cast_expression;
+    CHECK(SomeAlias::MatchesWithConditionalCast(expression, &cast_expression))
         << expression->toString();
     cast_expressions.push_back(cast_expression);
   }

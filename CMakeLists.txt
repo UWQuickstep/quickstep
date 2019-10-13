@@ -529,6 +529,9 @@ elseif(MSVC)
   add_definitions( /D _VARIADIC_MAX=10 )
 endif()
 
+# Link with atomic library.
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -latomic")
+
 # Set the include directories to the project root directory and the root of the build tree (where
 # generated headers will go).
 include_directories(${PROJECT_SOURCE_DIR})

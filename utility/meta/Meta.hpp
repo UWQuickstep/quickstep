@@ -17,29 +17,13 @@
  * under the License.
  **/
 
-#ifndef QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
-#define QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
+#ifndef QUICKSTEP_UTILITY_META_META_HPP_
+#define QUICKSTEP_UTILITY_META_META_HPP_
 
-namespace quickstep {
+#include "utility/meta/Common.hpp"
+#include "utility/meta/CxxTypeTraits.hpp"
+#include "utility/meta/MultipleDispatcher.hpp"
+#include "utility/meta/StringConstant.hpp"
+#include "utility/meta/TypeList.hpp"
 
-/** \addtogroup Expressions
- *  @{
- */
-
-/**
- * @brief The possible types of aggregations.
- **/
-enum AggregationID {
-  kAvg = 0,
-  kCount,
-  kMax,
-  kMin,
-  kSum,
-  kHasMultipleValues
-};
-
-/** @} */
-
-}  // namespace quickstep
-
-#endif  // QUICKSTEP_EXPRESSIONS_AGGREGATION_AGGREGATION_ID_HPP_
+#endif  // QUICKSTEP_UTILITY_META_META_HPP_
