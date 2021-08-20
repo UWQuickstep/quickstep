@@ -31,7 +31,7 @@ const char *Scalar::kScalarDataSourceNames[] = {
   "Attribute",
   "UnaryExpression",
   "BinaryExpression",
-  "SimpleCase"
+  "SimpleCase",
   "SharedExpression",
 };
 
