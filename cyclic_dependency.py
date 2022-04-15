@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # Script to do analyze the dependencies in Quickstep particularly cycles in the
 # dependency graph. This script can be used to find:
@@ -7,7 +7,7 @@
 #   3. Find shortest path between two targets.
 #
 # Dependency:
-#   pip install networkx
+#   pip3 install networkx
 #
 # Usage:
 #   Find the shortest path between target1 and target2.
@@ -227,4 +227,3 @@ if __name__ == "__main__":
         sys.exit(1)
     else:
         sys.exit(0)
-
