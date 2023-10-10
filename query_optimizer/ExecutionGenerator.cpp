@@ -536,7 +536,7 @@ void ExecutionGenerator::createTemporaryCatalogRelation(
   }
 
   attribute_id aid = 0;
-  for (const E::NamedExpressionPtr &project_expression :
+  for (const auto &project_expression :
        physical->getOutputAttributes()) {
     // The attribute name is simply set to the attribute id to make it distinct.
     auto catalog_attribute =
@@ -1165,7 +1165,7 @@ void ExecutionGenerator::convertNestedLoopsJoin(
         convertPredicate(physical_plan->join_predicate(), left_expr_ids, right_expr_ids));
     query_context_proto_->add_predicates()->MergeFrom(execution_join_predicate->getProto());
   } else {
-    query_context_proto_->add_predicates()->set_predicate_type(S::Predicate::TRUE);
+    query_context_proto_->add_predicates()->set_predicate_type(S::Predicate_PredicateType_TRUE);
   }
 
   // Convert the project expressions proto.
@@ -2420,7 +2420,7 @@ void ExecutionGenerator::convertWindowAggregate(
 
   // Set partition keys.
   const E::WindowInfo &window_info = window_aggregate_function->window_info();
-  for (const E::ScalarPtr &partition_by_attribute
+  for (const auto &partition_by_attribute
       : window_info.partition_by_attributes) {
     unique_ptr<const Scalar> concretized_partition_by_attribute(
         partition_by_attribute->concretize(attribute_substitution_map_));
@@ -2429,7 +2429,7 @@ void ExecutionGenerator::convertWindowAggregate(
   }
 
   // Set order keys.
-  for (const E::ScalarPtr &order_by_attribute
+  for (const auto &order_by_attribute
       : window_info.order_by_attributes) {
     unique_ptr<const Scalar> concretized_order_by_attribute(
         order_by_attribute->concretize(attribute_substitution_map_));

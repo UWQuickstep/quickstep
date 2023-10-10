@@ -64,7 +64,7 @@ class TruePredicate : public TrivialPredicate {
 
   serialization::Predicate getProto() const override {
     serialization::Predicate proto;
-    proto.set_predicate_type(serialization::Predicate::TRUE);
+    proto.set_predicate_type(serialization::Predicate_PredicateType_TRUE);
 
     return proto;
   }
@@ -115,7 +115,7 @@ class FalsePredicate : public TrivialPredicate {
 
   serialization::Predicate getProto() const override {
     serialization::Predicate proto;
-    proto.set_predicate_type(serialization::Predicate::FALSE);
+    proto.set_predicate_type(serialization::Predicate_PredicateType_FALSE);
 
     return proto;
   }

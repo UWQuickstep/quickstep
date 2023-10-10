@@ -380,8 +380,7 @@ tuple_id SplitRowStoreTupleStorageSubBlock::bulkInsertPartialTuplesImpl(
             const VarLenAttr &vattr = varlen_attrs[vattr_idx];
             attr_cursor += vattr.bytes_to_advance;
             // Typed value is necessary as we need the length.
-            const TypedValue &attr_value =
-                accessor->template getTypedValue(vattr.src_attr_id);
+            const TypedValue &attr_value = accessor->getTypedValue(vattr.src_attr_id);
             if (attr_value.isNull()) {
               continue;
             }
