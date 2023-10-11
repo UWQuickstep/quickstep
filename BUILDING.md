@@ -1,16 +1,17 @@
 # Quickstep Build Guide
 
 **Contents**
-* [Basic Instructions](#basic-instructions)
-  * [Prerequisites](#prerequisites)
-  * [Building](#building)
-  * [Running Quickstep](#running-quickstep)
-  * [Running Tests](#running-tests)
-  * [Configuring with CMake](#configuring-with-cmake)
-* [Advanced Configuration](#advanced-configuration)
-* [Appendix](#appendix)
-  * [Building on Windows](#building-on-windows)
-  * [Building in Vagrant](#building-in-vagrant)
+- [Quickstep Build Guide](#quickstep-build-guide)
+- [Basic Instructions](#basic-instructions)
+  - [Prerequisites](#prerequisites)
+  - [Building](#building)
+  - [Running Quickstep](#running-quickstep)
+  - [Running Tests](#running-tests)
+  - [Configuring with CMake](#configuring-with-cmake)
+- [Advanced Configuration](#advanced-configuration)
+- [Appendix](#appendix)
+  - [Building on Windows](#building-on-windows)
+  - [Building in Vagrant](#building-in-vagrant)
 
 
 **Short Version**
@@ -22,7 +23,9 @@ cd third_party
 ./download_and_patch_prerequisites.sh
 cd ../build
 cmake ..
-make quickstep_cli_shell
+# Please note that the first compilation may take a long time due to template instantiations especially for meta programming
+make quickstep_cli_shell -j`nproc`
+# Only for the first run to initialize the empty `catalog`
 ./quickstep_cli_shell -initialize_db=true
 ```
 
@@ -30,11 +33,17 @@ make quickstep_cli_shell
 
 ## Prerequisites
 
-- C++ compiler that supports the C++14 standard (GCC 4.9+ or Clang 3.4+ are good)
+- C++ compiler that supports the C++17 standard (GCC 4.9+ or Clang 3.4+ are good)
 - [cmake](http://www.cmake.org/download/) 2.8.6+
 - curl
 
 All these programs should be available on your distro's package manager.
+
+**Recommended**
+
+Strange errors could occur with `GCC`, and we're not currently upgrade this part to satisfy it.
+
+- Clang 14.0.0 (Or any other clang version that supports C++17)
 
 **Optional**
 
@@ -76,7 +85,7 @@ running cmake.
 
 Like a conventional configure script, you can configure some settings about how
 quickstep is built when you invoke cmake. The most important is the build type.
-You can build an unoptimized build with debugging information by doing:
+You can build an not optimized build with debugging information by doing:
 
 ```
 cmake -D CMAKE_BUILD_TYPE=Debug ..
@@ -86,6 +95,12 @@ You can build a fast, optimized release build by doing:
 
 ```
 cmake -D CMAKE_BUILD_TYPE=Release ..
+```
+
+If you're using a linux distribution and want to utilize `clang` for compilation (which is recommended), run the cmake command by doing:
+
+```
+cmake -D CMAKE_C_COMPILER=/path/to/clang -D CMAKE_CXX_COMPILER=/path/to/clang++ /** other configurations */ ..
 ```
 
 The first time you check out the Quickstep source repo, you will also need to

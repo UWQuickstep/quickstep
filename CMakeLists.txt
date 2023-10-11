@@ -20,6 +20,14 @@ project (QUICKSTEP)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# TODO: Resolve these, now we simply suppress the warnings as temporary solution
+add_compile_options(-Wno-deprecated-declarations)
+add_compile_options(-Wno-unused-but-set-variable)
+
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)

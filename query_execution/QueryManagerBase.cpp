@@ -72,7 +72,7 @@ QueryManagerBase::QueryManagerBase(QueryHandle *query_handle)
       non_dependent_operators_.push_back(node_index);
     }
 
-    for (const pair<dag_node_index, bool> &dependent_link :
+    for (const auto &dependent_link :
          query_dag_->getDependents(node_index)) {
       const dag_node_index dependent_op_index = dependent_link.first;
       if (query_dag_->getLinkMetadata(node_index, dependent_op_index)) {
@@ -185,7 +185,7 @@ void QueryManagerBase::markOperatorFinished(const dag_node_index index) {
 
   const relation_id output_rel = op->getOutputRelationID();
 
-  for (const pair<dag_node_index, bool> &dependent_link : query_dag_->getDependents(index)) {
+  for (const auto &dependent_link : query_dag_->getDependents(index)) {
     const dag_node_index dependent_op_index = dependent_link.first;
     if (output_rel >= 0) {
       // Signal dependent operator that current operator is done feeding input blocks.

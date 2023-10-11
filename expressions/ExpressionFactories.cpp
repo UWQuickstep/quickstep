@@ -63,9 +63,9 @@ Predicate* PredicateFactory::ReconstructFromProto(const serialization::Predicate
       << proto.DebugString();
 
   switch (proto.predicate_type()) {
-    case serialization::Predicate::TRUE:
+    case serialization::Predicate_PredicateType_TRUE:
       return new TruePredicate();
-    case serialization::Predicate::FALSE:
+    case serialization::Predicate_PredicateType_FALSE:
       return new FalsePredicate();
     case serialization::Predicate::COMPARISON:
       return new ComparisonPredicate(
@@ -111,8 +111,8 @@ bool PredicateFactory::ProtoIsValid(const serialization::Predicate &proto,
 
   // Check that the predicate_type is valid, and extensions if any.
   switch (proto.predicate_type()) {
-    case serialization::Predicate::TRUE:  // Fall through.
-    case serialization::Predicate::FALSE:
+    case serialization::Predicate_PredicateType_TRUE:  // Fall through.
+    case serialization::Predicate_PredicateType_FALSE:
       return true;
     case serialization::Predicate::COMPARISON: {
       if (proto.HasExtension(serialization::ComparisonPredicate::comparison)
