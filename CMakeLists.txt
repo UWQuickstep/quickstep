@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.5)
 project (QUICKSTEP)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -27,6 +27,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # TODO: Resolve these, now we simply suppress the warnings as temporary solution
 add_compile_options(-Wno-deprecated-declarations)
 add_compile_options(-Wno-unused-but-set-variable)
+add_compile_options(-Wno-unqualified-std-cast-call)
 
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
@@ -621,6 +622,7 @@ if (NOT USE_LIBCXX)
   include(FindProtobuf)
 endif()
 if(NOT PROTOBUF_FOUND)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-enum-compare-switch")
   # Build the copy of protobufs in third_party/
   add_subdirectory("${THIRD_PARTY_SOURCE_DIR}/protobuf_cmake" "${CMAKE_CURRENT_BINARY_DIR}/third_party/protobuf")
   set(PROTOBUF_FOUND 1)

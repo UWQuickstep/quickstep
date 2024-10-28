@@ -20,8 +20,6 @@
 #ifndef QUICKSTEP_TYPES_OPERATIONS_COMPARISONS_LITERAL_COMPARATORS_HPP_
 #define QUICKSTEP_TYPES_OPERATIONS_COMPARISONS_LITERAL_COMPARATORS_HPP_
 
-#include <functional>
-
 #include "catalog/CatalogTypedefs.hpp"
 #include "types/TypedValue.hpp"
 #include "types/operations/comparisons/Comparison.hpp"
@@ -36,47 +34,37 @@ class ValueAccessor;
  *  @{
  */
 
-// We use these functors instead of the standard-library ones, because the
-// standard-library functors in <functional> have to be instantiated for the
-// most specific argument type, which would unnecessisarily multiply the number
-// of distinct template instantiations of Comparators by 7.
-template <typename LeftArgument, typename RightArgument> struct EqualFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct EqualFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left == right;
   }
 };
 
-template <typename LeftArgument, typename RightArgument> struct NotEqualFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct NotEqualFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left != right;
   }
 };
 
-template <typename LeftArgument, typename RightArgument> struct LessFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct LessFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left < right;
   }
 };
 
-template <typename LeftArgument, typename RightArgument> struct LessOrEqualFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct LessOrEqualFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left <= right;
   }
 };
 
-template <typename LeftArgument, typename RightArgument> struct GreaterFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct GreaterFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left > right;
   }
 };
 
-template <typename LeftArgument, typename RightArgument> struct GreaterOrEqualFunctor
-    : public std::binary_function<LeftArgument, RightArgument, bool> {
+template <typename LeftArgument, typename RightArgument> struct GreaterOrEqualFunctor {
   inline bool operator() (const LeftArgument &left, const RightArgument &right) const {
     return left >= right;
   }
