@@ -232,63 +232,6 @@ if(LIBNUMA_FOUND)
   include_directories(${LIBNUMA_INCLUDE_DIR})
 endif()
 
-# Enable C++14 support.
-set(CPP14_SUPPORTED FALSE)
-include(CheckCXXSourceCompiles)
-if(NOT CPP14_SUPPORTED)
-  if (MSVC_VERSION GREATER 1899)
-    message("Your C++ compiler appears to be Microsoft Visual Studio 2015 or "
-            "better, which supports C++14 by default.")
-    set(CPP14_SUPPORTED TRUE)
-  endif()
-endif()
-if (NOT CPP14_SUPPORTED)
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" CXX_COMPILER_SUPPORTS_CPP14)
-  if (CXX_COMPILER_SUPPORTS_CPP14)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-    set(CPP14_SUPPORTED TRUE)
-  endif()
-endif()
-if (NOT CPP14_SUPPORTED)
-  CHECK_CXX_COMPILER_FLAG("-std=c++1y" CXX_COMPILER_SUPPORTS_CPP1Y)
-  if (CXX_COMPILER_SUPPORTS_CPP1Y)
-    message(WARNING "Your C++ compiler appears to support pre-standardized "
-                    "C++14 (AKA C++1y). Quickstep may fail to build if your "
-                    "compiler and standard library are not sufficiently C++14 "
-                    "compliant.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-    set(CPP14_SUPPORTED TRUE)
-  endif()
-endif()
-if (NOT CPP14_SUPPORTED)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" CXX_COMPILER_SUPPORTS_CPP11)
-  if (CXX_COMPILER_SUPPORTS_CPP11)
-    message(WARNING "Your C++ compiler appears to support C++11, but does not "
-                    "have flags to enable C++14 support. Quickstep may fail "
-                    "to build if your compiler and standard library are not "
-                    "sufficiently C++14 compliant.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    set(CPP14_SUPPORTED TRUE)
-  endif()
-endif()
-if (NOT CPP14_SUPPORTED)
-  CHECK_CXX_COMPILER_FLAG("-std=c++0x" CXX_COMPILER_SUPPORTS_CPP0X)
-  if (CXX_COMPILER_SUPPORTS_CPP0X)
-    message(WARNING "Your C++ compiler appears to only support "
-                    "pre-standardized C++0X (eventually ratified as C++11). "
-                    "Quickstep requires C++14 support, and the build is "
-                    "likely to fail if your compiler and standard library are "
-                    "not sufficiently C++14 compliant.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-    set(CPP14_SUPPORTED TRUE)
-  endif()
-endif()
-if (NOT CPP14_SUPPORTED)
-  message (WARNING "Could not find flags to enable C++14 or C++11 support for "
-                   "your compiler. If your compiler does not support C++14 by "
-                   "default, Quickstep will fail to build.")
-endif()
-
 # Also define _ISOC11_SOURCE, which turns on C library declarations from C11.
 set_property(
   DIRECTORY
